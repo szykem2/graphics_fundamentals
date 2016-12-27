@@ -4,12 +4,12 @@
 #include "vecmat.h"
 #include <vector>
 #include <iostream>
-#include <fstream>
+#include <fstream> 
 #include <string>
 #include <wx/dcbuffer.h>
 
 std::vector <double> x_start, x_end, y_start, y_end, z_start, z_end;
-std::vector <int> R, G, B, edge_width;
+std::vector <int> edge_width;
 double d = -2.0;
 
 //Do not add custom headers
@@ -168,29 +168,42 @@ void Anaglyphs::WxButtonLoadClick(wxCommandEvent& event)
 {
 	if (WxOpenFileDialog->ShowModal() == wxID_OK)
 	{
-		double x1, y1, z1, x2, y2, z2;
-		int size;
+		//double x1, y1, z1, x2, y2, z2;
+		//int size;
   
 		std::string line;
 		std::ifstream in(WxOpenFileDialog->GetPath().ToAscii());
 		if (in.is_open())
 		{
-			x_start.clear();y_start.clear();z_start.clear();
-			x_end.clear();y_end.clear();z_end.clear();
-			while (!in.eof())
+			x_start.clear();
+			y_start.clear();
+			z_start.clear();
+
+			x_end.clear();
+			y_end.clear();
+			z_end.clear();
+			std::ofstream of("test.txt");
+
+			while (std::getline(in, line))
 			{
-				in >> x1 >> y1 >> z1 >> x2 >> y2 >> z2 >> size;
-				x_start.push_back(x1);
-				x_end.push_back(x2);
+				std::vector<std::string> vec;
 				
-				y_start.push_back(y1);
-				y_end.push_back(y2);
-				
-				z_start.push_back(z1);
-				z_end.push_back(z2);
-				
-				edge_width.push_back(size);
+				split(line, vec, ' ');
+				if (vec[0] == "1") {
+					x_start.push_back(atof(vec[1].c_str()));
+					x_end.push_back(atof(vec[4].c_str()));
+
+					y_start.push_back(atof(vec[2].c_str()));
+					y_end.push_back(atof(vec[5].c_str()));
+
+					z_start.push_back(atof(vec[3].c_str()));
+					z_end.push_back(atof(vec[6].c_str()));
+
+					edge_width.push_back(atoi(vec[7].c_str()));
+					of << 1 << " " << atof(vec[1].c_str()) << " " << atof(vec[2].c_str()) << " " << atof(vec[3].c_str()) << " " << atof(vec[4].c_str()) << " " << atof(vec[5].c_str()) << " " << atof(vec[6].c_str()) << " " << atof(vec[7].c_str()) << std::endl;
+				}
 			}
+			of.close();
 			in.close();
 		}
 	}
@@ -338,4 +351,25 @@ void Anaglyphs::WxSB_TransZScroll(wxScrollEvent& event)
 	str << (WxSB_TransZ->GetThumbPosition() - 50) / 30.0;
 	WxST_TransZ->SetLabel(str);
 	Repaint();	
+}
+
+
+unsigned split(const std::string &txt, std::vector<std::string> &strs, char ch)
+{
+	unsigned int pos = txt.find(ch);
+	unsigned int initialPos = 0;
+	strs.clear();
+
+	// Decompose statement
+	while (pos != std::string::npos) {
+		strs.push_back(txt.substr(initialPos, pos - initialPos));
+		initialPos = pos + 1;
+
+		pos = txt.find(ch, initialPos);
+	}
+
+	// Add the last one
+	strs.push_back(txt.substr(initialPos, std::min(pos, txt.size()) - initialPos));
+
+	return strs.size();
 }

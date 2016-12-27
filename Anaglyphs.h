@@ -23,6 +23,7 @@
 #include <wx/panel.h>
 #include <wx/sizer.h>
 ////Header Include End
+unsigned split(const std::string &txt, std::vector<std::string> &strs, char ch);
 
 ////Dialog Style Start
 #undef Anaglyphs_STYLE
