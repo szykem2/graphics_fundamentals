@@ -42,34 +42,19 @@ public:
 	void AnaglyphsPaint(wxPaintEvent& event);
 	void Repaint();
 	void WxPanelUpdateUI(wxUpdateUIEvent& event);
-	void WxSB_TranslationXScroll(wxScrollEvent& event);
-	void WxSB_TranslationYScroll(wxScrollEvent& event);
-	void WxSB_TranslationZScroll(wxScrollEvent& event);
 	void WxSB_RotateXScroll(wxScrollEvent& event);
 	void WxSB_RotateYScroll(wxScrollEvent& event);
 	void WxSB_RotateZScroll(wxScrollEvent& event);
-	void WxSB_ScaleXScroll(wxScrollEvent& event);
-	void WxSB_ScaleYScroll(wxScrollEvent& event);
-	void WxSB_ScaleZScroll(wxScrollEvent& event);
+	void WxSB_TransZScroll(wxScrollEvent& event);
 
 private:
 	//Do not add custom control declarations between 
 	//GUI Control Declaration Start and GUI Control Declaration End.
 	//wxDev-C++ will remove them. Add custom code after the block.
 	////GUI Control Declaration Start
-	wxButton *WxButtonSave;
-	wxButton *WxButtonLoad;
 	wxFileDialog *WxOpenFileDialog;
-	wxStaticText *WxST_ScaleZ;
-	wxScrollBar *WxSB_ScaleZ;
-	wxStaticText *WxStaticText9;
-	wxBoxSizer *WxBoxSizer11;
-	wxStaticText *WxST_ScaleY;
-	wxScrollBar *WxSB_ScaleY;
-	wxStaticText *WxStaticText8;
-	wxBoxSizer *WxBoxSizer10;
-	wxStaticText *WxST_ScaleX;
-	wxScrollBar *WxSB_ScaleX;
+	wxStaticText *WxST_TransZ;
+	wxScrollBar *WxSB_TransZ;
 	wxStaticText *WxStaticText7;
 	wxBoxSizer *WxBoxSizer9;
 	wxStaticText *WxST_RotateZ;
@@ -84,6 +69,8 @@ private:
 	wxScrollBar *WxSB_RotateX;
 	wxStaticText *WxStaticText1;
 	wxBoxSizer *WxBoxSizer3;
+	wxButton *WxButtonSave;
+	wxButton *WxButtonLoad;
 	wxBoxSizer *WxBoxSizer6;
 	wxBoxSizer *WxBoxSizer2;
 	wxPanel *WxPanel;
@@ -98,16 +85,8 @@ private:
 	enum
 	{
 		////GUI Enum Control ID Start
-		ID_WXBUTTONSAVE = 1050,
-		ID_WXBUTTONLOAD = 1049,
-		ID_WXST_SCALEZ = 1044,
-		ID_WXSB_SCALEZ = 1041,
-		ID_WXSTATICTEXT9 = 1038,
-		ID_WXST_SCALEY = 1043,
-		ID_WXSB_SCALEY = 1040,
-		ID_WXSTATICTEXT8 = 1037,
 		ID_WXST_SCALEX = 1042,
-		ID_WXSB_SCALEX = 1039,
+		ID_WXSB_TRANSZ = 1039,
 		ID_WXSTATICTEXT7 = 1036,
 		ID_WXST_ROTATEZ = 1032,
 		ID_WXSB_ROTATEZ = 1015,
@@ -118,6 +97,8 @@ private:
 		ID_WXST_ROTATEX = 1030,
 		ID_WXSB_ROTATEX = 1009,
 		ID_WXSTATICTEXT1 = 1008,
+		ID_WXBUTTONSAVE = 1050,
+		ID_WXBUTTONLOAD = 1049,
 		ID_WXPANEL = 1002,
 		////GUI Enum Control ID End
 		ID_DUMMY_VALUE_ //don't remove this value unless you have other enum values

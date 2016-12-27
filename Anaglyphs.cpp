@@ -30,11 +30,7 @@ BEGIN_EVENT_TABLE(Anaglyphs, wxDialog)
 EVT_CLOSE(Anaglyphs::OnClose)
 EVT_BUTTON(ID_WXBUTTONLOAD, Anaglyphs::WxButtonLoadClick)
 
-EVT_COMMAND_SCROLL(ID_WXSB_SCALEZ, Anaglyphs::WxSB_ScaleZScroll)
-
-EVT_COMMAND_SCROLL(ID_WXSB_SCALEY, Anaglyphs::WxSB_ScaleYScroll)
-
-EVT_COMMAND_SCROLL(ID_WXSB_SCALEX, Anaglyphs::WxSB_ScaleXScroll)
+EVT_COMMAND_SCROLL(ID_WXSB_TRANSZ, Anaglyphs::WxSB_TransZScroll)
 
 EVT_COMMAND_SCROLL(ID_WXSB_ROTATEZ, Anaglyphs::WxSB_RotateZScroll)
 
@@ -68,7 +64,7 @@ void Anaglyphs::CreateGUIControls()
 	this->SetSizer(WxBoxSizer1);
 	this->SetAutoLayout(true);
 
-	WxPanel = new wxPanel(this, ID_WXPANEL, wxPoint(449, 5), wxSize(213, 47));
+	WxPanel = new wxPanel(this, ID_WXPANEL, wxPoint(290, 5), wxSize(213, 47));
 	WxBoxSizer1->Add(WxPanel, 1, wxEXPAND | wxALL, 5);
 
 	WxBoxSizer2 = new wxBoxSizer(wxHORIZONTAL);
@@ -76,6 +72,12 @@ void Anaglyphs::CreateGUIControls()
 
 	WxBoxSizer6 = new wxBoxSizer(wxVERTICAL);
 	WxBoxSizer2->Add(WxBoxSizer6, 0, wxALIGN_CENTER | wxALL, 5);
+
+	WxButtonLoad = new wxButton(this, ID_WXBUTTONLOAD, _("Wczytaj Geometriê"), wxPoint(5, 5), wxSize(124, 25), 0, wxDefaultValidator, _("WxButtonLoad"));
+	WxBoxSizer6->Add(WxButtonLoad, 0, wxALIGN_CENTER | wxALL, 5);
+
+	WxButtonSave = new wxButton(this, ID_WXBUTTONSAVE, _("Zapisz obraz"), wxPoint(6, 40), wxSize(122, 25), 0, wxDefaultValidator, _("WxButtonSave"));
+	WxBoxSizer6->Add(WxButtonSave, 0, wxALIGN_CENTER | wxALL, 5);
 
 	WxBoxSizer3 = new wxBoxSizer(wxVERTICAL);
 	WxBoxSizer2->Add(WxBoxSizer3, 0, wxALIGN_CENTER | wxALL, 5);
@@ -119,49 +121,17 @@ void Anaglyphs::CreateGUIControls()
 	WxBoxSizer9 = new wxBoxSizer(wxVERTICAL);
 	WxBoxSizer2->Add(WxBoxSizer9, 0, wxALIGN_CENTER | wxALL, 5);
 
-	WxStaticText7 = new wxStaticText(this, ID_WXSTATICTEXT7, _("Skala X:"), wxPoint(52, 5), wxDefaultSize, 0, _("WxStaticText7"));
+	WxStaticText7 = new wxStaticText(this, ID_WXSTATICTEXT7, _("Zbli¿enie"), wxPoint(49, 5), wxDefaultSize, 0, _("WxStaticText7"));
 	WxBoxSizer9->Add(WxStaticText7, 0, wxALIGN_CENTER | wxALL, 5);
 
-	WxSB_ScaleX = new wxScrollBar(this, ID_WXSB_SCALEX, wxPoint(5, 34), wxSize(139, 18), wxSB_HORIZONTAL, wxDefaultValidator, _("WxSB_ScaleX"));
-	WxSB_ScaleX->Enable(false);
-	WxBoxSizer9->Add(WxSB_ScaleX, 0, wxALIGN_CENTER | wxALL, 5);
+	WxSB_TransZ = new wxScrollBar(this, ID_WXSB_TRANSZ, wxPoint(5, 34), wxSize(139, 18), wxSB_HORIZONTAL, wxDefaultValidator, _("WxSB_TransZ"));
+	WxSB_TransZ->Enable(false);
+	WxBoxSizer9->Add(WxSB_TransZ, 0, wxALIGN_CENTER | wxALL, 5);
 
-	WxST_ScaleX = new wxStaticText(this, ID_WXST_SCALEX, _("1.0  "), wxPoint(62, 62), wxDefaultSize, 0, _("WxST_ScaleX"));
-	WxBoxSizer9->Add(WxST_ScaleX, 0, wxALIGN_CENTER | wxALL, 5);
-
-	WxBoxSizer10 = new wxBoxSizer(wxVERTICAL);
-	WxBoxSizer2->Add(WxBoxSizer10, 0, wxALIGN_CENTER | wxALL, 5);
-
-	WxStaticText8 = new wxStaticText(this, ID_WXSTATICTEXT8, _("Skala Y:"), wxPoint(52, 5), wxDefaultSize, 0, _("WxStaticText8"));
-	WxBoxSizer10->Add(WxStaticText8, 0, wxALIGN_CENTER | wxALL, 5);
-
-	WxSB_ScaleY = new wxScrollBar(this, ID_WXSB_SCALEY, wxPoint(5, 34), wxSize(139, 18), wxSB_HORIZONTAL, wxDefaultValidator, _("WxSB_ScaleY"));
-	WxSB_ScaleY->Enable(false);
-	WxBoxSizer10->Add(WxSB_ScaleY, 0, wxALIGN_CENTER | wxALL, 5);
-
-	WxST_ScaleY = new wxStaticText(this, ID_WXST_SCALEY, _("1.0  "), wxPoint(62, 62), wxDefaultSize, 0, _("WxST_ScaleY"));
-	WxBoxSizer10->Add(WxST_ScaleY, 0, wxALIGN_CENTER | wxALL, 5);
-
-	WxBoxSizer11 = new wxBoxSizer(wxVERTICAL);
-	WxBoxSizer2->Add(WxBoxSizer11, 0, wxALIGN_CENTER | wxALL, 5);
-
-	WxStaticText9 = new wxStaticText(this, ID_WXSTATICTEXT9, _("Skala Z:"), wxPoint(52, 5), wxDefaultSize, 0, _("WxStaticText9"));
-	WxBoxSizer11->Add(WxStaticText9, 0, wxALIGN_CENTER | wxALL, 5);
-
-	WxSB_ScaleZ = new wxScrollBar(this, ID_WXSB_SCALEZ, wxPoint(5, 34), wxSize(139, 18), wxSB_HORIZONTAL, wxDefaultValidator, _("WxSB_ScaleZ"));
-	WxSB_ScaleZ->Enable(false);
-	WxBoxSizer11->Add(WxSB_ScaleZ, 0, wxALIGN_CENTER | wxALL, 5);
-
-	WxST_ScaleZ = new wxStaticText(this, ID_WXST_SCALEZ, _("1.0  "), wxPoint(62, 62), wxDefaultSize, 0, _("WxST_ScaleZ"));
-	WxBoxSizer11->Add(WxST_ScaleZ, 0, wxALIGN_CENTER | wxALL, 5);
+	WxST_TransZ = new wxStaticText(this, ID_WXST_SCALEX, _("1.0  "), wxPoint(62, 62), wxDefaultSize, 0, _("WxST_TransZ"));
+	WxBoxSizer9->Add(WxST_TransZ, 0, wxALIGN_CENTER | wxALL, 5);
 
 	WxOpenFileDialog = new wxFileDialog(this, _("Choose a file"), _(""), _(""), _("*.*"), wxFD_OPEN);
-
-	WxButtonLoad = new wxButton(this, ID_WXBUTTONLOAD, _("Wczytaj Geometriê"), wxPoint(5, 5), wxSize(124, 25), 0, wxDefaultValidator, _("WxButtonLoad"));
-	WxBoxSizer6->Add(WxButtonLoad, 0, wxALIGN_CENTER | wxALL, 5);
-
-	WxButtonSave = new wxButton(this, ID_WXBUTTONSAVE, _("Zapisz obraz"), wxPoint(6, 40), wxSize(122, 25), 0, wxDefaultValidator, _("WxButtonSave"));
-	WxBoxSizer6->Add(WxButtonSave, 0, wxALIGN_CENTER | wxALL, 5);
 
 	SetTitle(_("Projekt 3: Anaglify"));
 	SetIcon(wxNullIcon);
@@ -181,12 +151,8 @@ void Anaglyphs::CreateGUIControls()
 	WxSB_RotateZ->SetScrollbar(0, 1, 361, 1, true);
 	WxSB_RotateZ->Enable(true);
 
-	WxSB_ScaleX->SetScrollbar(99, 1, 200, 1, true);
-	WxSB_ScaleX->Enable(true);
-	WxSB_ScaleY->SetScrollbar(99, 1, 200, 1, true);
-	WxSB_ScaleY->Enable(true);
-	WxSB_ScaleZ->SetScrollbar(99, 1, 200, 1, true);
-	WxSB_ScaleZ->Enable(true);
+	WxSB_TransZ->SetScrollbar(50, 1, 101, 1, true);
+	WxSB_TransZ->Enable(true);
 }
 
 void Anaglyphs::OnClose(wxCloseEvent& /*event*/)
@@ -246,7 +212,7 @@ void Anaglyphs::Repaint()
 
 	translate_matrix.data[0][3] = 0;
 	translate_matrix.data[1][3] = 0;
-	translate_matrix.data[2][3] = 0;
+	translate_matrix.data[2][3] = (WxSB_TransZ->GetThumbPosition() - 50.) / 30.;
 	translate_matrix.data[0][0] = translate_matrix.data[1][1] = translate_matrix.data[2][2] = 1.;
 
 	Matrix4 rotate_matrix_x, rotate_matrix_y, rotate_matrix_z;
@@ -274,27 +240,15 @@ void Anaglyphs::Repaint()
 
 	rotate_matrix = rotate_matrix_x * rotate_matrix_y * rotate_matrix_z;
 
-	Matrix4 scale_matrix;
-
-	double scale_over_x = (WxSB_ScaleX->GetThumbPosition() + 1.0) / 100.0;
-	double scale_over_y = (WxSB_ScaleY->GetThumbPosition() + 1.0) / 100.0;
-	double scale_over_z = (WxSB_ScaleZ->GetThumbPosition() + 1.0) / 100.0;
-
-
-	scale_matrix.data[0][0] = scale_over_x;
-	scale_matrix.data[1][1] = scale_over_y;
-	scale_matrix.data[2][2] = scale_over_z;
-
-
 	Matrix4 final_matrix;
-	final_matrix = translate_matrix * rotate_matrix * scale_matrix;
+	final_matrix = translate_matrix * rotate_matrix;
 
 	Vector4 start_vector, end_vector;
 	Vector4 start_vector1, end_vector1;
 
 	wxPen pen = dc.GetPen();
 
-	for (int i = 0; i < x_start.size(); i++)
+	for (unsigned i = 0; i < x_start.size(); i++)
 	{
 		pen.SetColour(255, 0, 0);
 		pen.SetWidth(edge_width[i]);
@@ -313,8 +267,8 @@ void Anaglyphs::Repaint()
 	}
 
 	translate_matrix.data[0][3] += 0.02;
-	final_matrix = translate_matrix * rotate_matrix * scale_matrix;
-	for (int i = 0; i < x_start.size(); i++)
+	final_matrix = translate_matrix * rotate_matrix;
+	for (unsigned i = 0; i < x_start.size(); i++)
 	{
 		pen.SetColour(0, 0, 255);
 		pen.SetWidth(edge_width[i]);
@@ -348,7 +302,7 @@ void Anaglyphs::WxPanelUpdateUI(wxUpdateUIEvent& event)
 void Anaglyphs::WxSB_RotateXScroll(wxScrollEvent& event)
 {
  wxString str;
- str<<(WxSB_RotateX->GetThumbPosition());
+ str << (WxSB_RotateX->GetThumbPosition());
  WxST_RotateX->SetLabel(str);
  Repaint();
 }
@@ -359,7 +313,7 @@ void Anaglyphs::WxSB_RotateXScroll(wxScrollEvent& event)
 void Anaglyphs::WxSB_RotateYScroll(wxScrollEvent& event)
 {
  wxString str;
- str<<(WxSB_RotateY->GetThumbPosition());
+ str << (WxSB_RotateY->GetThumbPosition());
  WxST_RotateY->SetLabel(str);
  Repaint();
 }
@@ -370,7 +324,7 @@ void Anaglyphs::WxSB_RotateYScroll(wxScrollEvent& event)
 void Anaglyphs::WxSB_RotateZScroll(wxScrollEvent& event)
 {
  wxString str;
- str<<(WxSB_RotateZ->GetThumbPosition());
+ str << (WxSB_RotateZ->GetThumbPosition());
  WxST_RotateZ->SetLabel(str);
  Repaint();
 }
@@ -378,32 +332,10 @@ void Anaglyphs::WxSB_RotateZScroll(wxScrollEvent& event)
 /*
  * WxSB_ScaleXScroll
  */
-void Anaglyphs::WxSB_ScaleXScroll(wxScrollEvent& event)
+void Anaglyphs::WxSB_TransZScroll(wxScrollEvent& event)
 {
- wxString str;
- str<<(WxSB_ScaleX->GetThumbPosition()+1.0)/100.0;
- WxST_ScaleX->SetLabel(str);
- Repaint();	
-}
-
-/*
- * WxSB_ScaleYScroll
- */
-void Anaglyphs::WxSB_ScaleYScroll(wxScrollEvent& event)
-{
- wxString str;
- str<<(WxSB_ScaleY->GetThumbPosition()+1.0)/100.0;
- WxST_ScaleY->SetLabel(str);
- Repaint();
-}
-
-/*
- * WxSB_ScaleZScroll
- */
-void Anaglyphs::WxSB_ScaleZScroll(wxScrollEvent& event)
-{
- wxString str;
- str<<(WxSB_ScaleZ->GetThumbPosition()+1.0)/100.0;
- WxST_ScaleZ->SetLabel(str);
- Repaint();
+	wxString str;
+	str << (WxSB_TransZ->GetThumbPosition() - 50) / 30.0;
+	WxST_TransZ->SetLabel(str);
+	Repaint();	
 }
