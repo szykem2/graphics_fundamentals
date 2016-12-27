@@ -182,7 +182,6 @@ void Anaglyphs::WxButtonLoadClick(wxCommandEvent& event)
 			x_end.clear();
 			y_end.clear();
 			z_end.clear();
-			std::ofstream of("test.txt");
 
 			while (std::getline(in, line))
 			{
@@ -200,10 +199,8 @@ void Anaglyphs::WxButtonLoadClick(wxCommandEvent& event)
 					z_end.push_back(atof(vec[6].c_str()));
 
 					edge_width.push_back(atoi(vec[7].c_str()));
-					of << 1 << " " << atof(vec[1].c_str()) << " " << atof(vec[2].c_str()) << " " << atof(vec[3].c_str()) << " " << atof(vec[4].c_str()) << " " << atof(vec[5].c_str()) << " " << atof(vec[6].c_str()) << " " << atof(vec[7].c_str()) << std::endl;
 				}
 			}
-			of.close();
 			in.close();
 		}
 	}
