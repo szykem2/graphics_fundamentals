@@ -2,6 +2,7 @@
 #define WXUSINGDLL
 #include "Anaglyphs.h"
 #include "vecmat.h"
+#include "Sphere.h"
 #include <vector>
 #include <iostream>
 #include <fstream> 
@@ -11,6 +12,7 @@
 
 std::vector <double> x_start, x_end, y_start, y_end, z_start, z_end;
 std::vector <int> edge_width;
+std::vector <Sphere> spheres;
 double d = -2.0;
 int G = 0;
 wxMemoryDC dcs;
@@ -217,6 +219,9 @@ void Anaglyphs::WxButtonLoadClick(wxCommandEvent& event)
 			y_end.clear();
 			z_end.clear();
 
+			edge_width.clear();
+			spheres.clear();
+
 			while (std::getline(in, line))
 			{
 				std::vector<std::string> vec;
@@ -233,6 +238,13 @@ void Anaglyphs::WxButtonLoadClick(wxCommandEvent& event)
 					z_end.push_back(atof(vec[6].c_str()));
 
 					edge_width.push_back(atoi(vec[7].c_str()));
+				}
+				if (vec[0] == "2") {
+					float x = atof(vec[1].c_str());
+					float y = atof(vec[2].c_str());
+					float z = atof(vec[3].c_str());
+					float r = atof(vec[4].c_str());
+					spheres.push_back(Sphere(Point(x, y, z), r / 2.));
 				}
 			}
 			in.close();
@@ -345,7 +357,7 @@ void Anaglyphs::Repaint()
 		dc.DrawLine(start_vector.GetX(), start_vector.GetY(), end_vector.GetX(), end_vector.GetY());
 	}
 
-	translate_matrix.data[0][3] += 0.02;
+	translate_matrix.data[0][3] += 0.01;
 	final_matrix = translate_matrix * rotate_matrix;
 	for (unsigned i = 0; i < x_start.size(); i++)
 	{
@@ -364,6 +376,52 @@ void Anaglyphs::Repaint()
 
 		dc.DrawLine(start_vector1.GetX(), start_vector1.GetY(), end_vector1.GetX(), end_vector1.GetY());
 	}
+
+	translate_matrix.data[0][3] -= 0.01;
+	for (unsigned j = 0; j < spheres.size(); j++)
+	{
+		wxPen pen = dc.GetPen();
+		pen.SetWidth(1);
+		std::vector<Point> pointss = spheres[j].getStartPoints();
+		std::vector<Point> pointse = spheres[j].getEndPoints();
+		for (unsigned i = 0; i < pointss.size(); i++)
+		{
+			pen.SetColour(255, 0, 0);
+			dc.SetPen(pen);
+
+			start_vector.Set(pointss[i].x, pointss[i].y, pointss[i].z);
+			end_vector.Set(pointse[i].x, pointse[i].y, pointse[i].z);
+
+			start_vector = final_matrix * start_vector;
+			end_vector = final_matrix * end_vector;
+
+			start_vector.Set((start_vector.GetX() / (-1 + start_vector.GetZ() / d)) * w / 2 + w / 2, (start_vector.GetY() / (-1 + start_vector.GetZ() / d)) * h / 2 + h / 2, pointse[i].z);
+			end_vector.Set((end_vector.GetX() / (-1 + end_vector.GetZ() / d)) * w / 2 + w / 2, (end_vector.GetY() / (-1 + end_vector.GetZ() / d)) * h / 2 + h / 2, pointse[i].z);
+
+			dc.DrawLine(start_vector.GetX(), start_vector.GetY(), end_vector.GetX(), end_vector.GetY());
+		}
+
+		translate_matrix.data[0][3] += 0.02;
+		final_matrix = translate_matrix * rotate_matrix;
+		for (unsigned i = 0; i < pointse.size(); i++)
+		{
+			pen.SetColour(0, G, 255);
+			dc.SetPen(pen);
+
+			start_vector.Set(pointss[i].x, pointss[i].y, pointss[i].z);
+			end_vector.Set(pointse[i].x, pointse[i].y, pointse[i].z);
+
+			start_vector = final_matrix * start_vector;
+			end_vector = final_matrix * end_vector;
+
+			start_vector.Set((start_vector.GetX() / (-1 + start_vector.GetZ() / d)) * w / 2 + w / 2, (start_vector.GetY() / (-1 + start_vector.GetZ() / d)) * h / 2 + h / 2, pointse[i].z);
+			end_vector.Set((end_vector.GetX() / (-1 + end_vector.GetZ() / d)) * w / 2 + w / 2, (end_vector.GetY() / (-1 + end_vector.GetZ() / d)) * h / 2 + h / 2, pointse[i].z);
+
+			dc.DrawLine(start_vector.GetX(), start_vector.GetY(), end_vector.GetX(), end_vector.GetY());
+		}
+	}
+
+
 	dcs.SelectObject(bit);
 	dcs.Blit(wxCoord(0), wxCoord(0), wxCoord(WxPanel->GetSize().GetWidth()), wxCoord(WxPanel->GetSize().GetHeight()), &dc, wxCoord(0), wxCoord(0));
 }
