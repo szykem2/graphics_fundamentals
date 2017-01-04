@@ -40,6 +40,7 @@ public:
 	virtual ~Anaglyphs();
 	void WxButton1Click(wxCommandEvent& event);
 	void WxButtonLoadClick(wxCommandEvent& event);
+	void WxButtonSaveClick(wxCommandEvent& event);
 	void AnaglyphsPaint(wxPaintEvent& event);
 	void Repaint();
 	void WxPanelUpdateUI(wxUpdateUIEvent& event);
@@ -47,12 +48,17 @@ public:
 	void WxSB_RotateYScroll(wxScrollEvent& event);
 	void WxSB_RotateZScroll(wxScrollEvent& event);
 	void WxSB_TransZScroll(wxScrollEvent& event);
+	void WxSB_Calibrate(wxScrollEvent& event);
 
 private:
 	//Do not add custom control declarations between 
 	//GUI Control Declaration Start and GUI Control Declaration End.
 	//wxDev-C++ will remove them. Add custom code after the block.
 	////GUI Control Declaration Start
+	wxStaticText *Calibration_label;
+	wxScrollBar *Calibration;
+	wxStaticText *Kalib;
+	wxBoxSizer *WxBoxSizer8;
 	wxFileDialog *WxOpenFileDialog;
 	wxStaticText *WxST_TransZ;
 	wxScrollBar *WxSB_TransZ;
@@ -70,6 +76,10 @@ private:
 	wxScrollBar *WxSB_RotateX;
 	wxStaticText *WxStaticText1;
 	wxBoxSizer *WxBoxSizer3;
+	wxTextCtrl *YResolutionInput;
+	wxTextCtrl *XResolutionInput;
+	wxBoxSizer *WxBoxSizer7;
+	wxStaticText *Resolution;
 	wxButton *WxButtonSave;
 	wxButton *WxButtonLoad;
 	wxBoxSizer *WxBoxSizer6;
@@ -86,7 +96,9 @@ private:
 	enum
 	{
 		////GUI Enum Control ID Start
-		ID_WXST_SCALEX = 1042,
+		ID_WXST_CALIBRATE = 1042,
+		ID_WXSB_CALIBRATE = 1039,
+		ID_WXST_TRANSZ = 1042,
 		ID_WXSB_TRANSZ = 1039,
 		ID_WXSTATICTEXT7 = 1036,
 		ID_WXST_ROTATEZ = 1032,
@@ -98,6 +110,9 @@ private:
 		ID_WXST_ROTATEX = 1030,
 		ID_WXSB_ROTATEX = 1009,
 		ID_WXSTATICTEXT1 = 1008,
+		ID_YRESOLUTIONINPUT = 1059,
+		ID_XRESOLUTIONINPUT = 1058,
+		ID_RESOLUTION = 1060,
 		ID_WXBUTTONSAVE = 1050,
 		ID_WXBUTTONLOAD = 1049,
 		ID_WXPANEL = 1002,
@@ -108,6 +123,7 @@ private:
 private:
 	void OnClose(wxCloseEvent& event);
 	void CreateGUIControls();
+	wxBitmap* bmp;
 };
 
 #endif

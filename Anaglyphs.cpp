@@ -7,10 +7,14 @@
 #include <fstream> 
 #include <string>
 #include <wx/dcbuffer.h>
+#include <wx/wfstream.h>
 
 std::vector <double> x_start, x_end, y_start, y_end, z_start, z_end;
 std::vector <int> edge_width;
 double d = -2.0;
+int G = 0;
+wxMemoryDC dcs;
+wxBitmap bit(1024, 768);
 
 //Do not add custom headers
 //wxDev-C++ designer will remove them
@@ -30,6 +34,10 @@ BEGIN_EVENT_TABLE(Anaglyphs, wxDialog)
 EVT_CLOSE(Anaglyphs::OnClose)
 EVT_BUTTON(ID_WXBUTTONLOAD, Anaglyphs::WxButtonLoadClick)
 
+EVT_BUTTON(ID_WXBUTTONSAVE, Anaglyphs::WxButtonSaveClick)
+
+EVT_COMMAND_SCROLL(ID_WXSB_CALIBRATE, Anaglyphs::WxSB_Calibrate)
+
 EVT_COMMAND_SCROLL(ID_WXSB_TRANSZ, Anaglyphs::WxSB_TransZScroll)
 
 EVT_COMMAND_SCROLL(ID_WXSB_ROTATEZ, Anaglyphs::WxSB_RotateZScroll)
@@ -46,6 +54,7 @@ Anaglyphs::Anaglyphs(wxWindow *parent, wxWindowID id, const wxString &title, con
 	: wxDialog(parent, id, title, position, size, style)
 {
 	CreateGUIControls();
+	wxImage::AddHandler(new wxJPEGHandler);
 }
 
 Anaglyphs::~Anaglyphs()
@@ -64,7 +73,7 @@ void Anaglyphs::CreateGUIControls()
 	this->SetSizer(WxBoxSizer1);
 	this->SetAutoLayout(true);
 
-	WxPanel = new wxPanel(this, ID_WXPANEL, wxPoint(290, 5), wxSize(213, 47));
+	WxPanel = new wxPanel(this, ID_WXPANEL, wxPoint(393, 5), wxSize(213, 47));
 	WxBoxSizer1->Add(WxPanel, 1, wxEXPAND | wxALL, 5);
 
 	WxBoxSizer2 = new wxBoxSizer(wxHORIZONTAL);
@@ -73,11 +82,23 @@ void Anaglyphs::CreateGUIControls()
 	WxBoxSizer6 = new wxBoxSizer(wxVERTICAL);
 	WxBoxSizer2->Add(WxBoxSizer6, 0, wxALIGN_CENTER | wxALL, 5);
 
-	WxButtonLoad = new wxButton(this, ID_WXBUTTONLOAD, _("Wczytaj Geometriê"), wxPoint(5, 5), wxSize(124, 25), 0, wxDefaultValidator, _("WxButtonLoad"));
+	WxButtonLoad = new wxButton(this, ID_WXBUTTONLOAD, _("Wczytaj Geometriê"), wxPoint(28, 5), wxSize(124, 25), 0, wxDefaultValidator, _("WxButtonLoad"));
 	WxBoxSizer6->Add(WxButtonLoad, 0, wxALIGN_CENTER | wxALL, 5);
 
-	WxButtonSave = new wxButton(this, ID_WXBUTTONSAVE, _("Zapisz obraz"), wxPoint(6, 40), wxSize(122, 25), 0, wxDefaultValidator, _("WxButtonSave"));
+	WxButtonSave = new wxButton(this, ID_WXBUTTONSAVE, _("Zapisz obraz"), wxPoint(29, 40), wxSize(122, 25), 0, wxDefaultValidator, _("WxButtonSave"));
 	WxBoxSizer6->Add(WxButtonSave, 0, wxALIGN_CENTER | wxALL, 5);
+
+	Resolution = new wxStaticText(this, ID_RESOLUTION, _("Rozdzielczoœæ(default: 800x600):"), wxPoint(5, 75), wxDefaultSize, 0, _("Resolution"));
+	WxBoxSizer6->Add(Resolution, 0, wxALIGN_CENTER | wxALL, 5);
+
+	WxBoxSizer7 = new wxBoxSizer(wxHORIZONTAL);
+	WxBoxSizer6->Add(WxBoxSizer7, 0, wxALIGN_CENTER | wxALL, 5);
+
+	XResolutionInput = new wxTextCtrl(this, ID_XRESOLUTIONINPUT, _("X"), wxPoint(5, 5), wxSize(35, 19), 0, wxDefaultValidator, _("XResolutionInput"));
+	WxBoxSizer7->Add(XResolutionInput, 0, wxALIGN_CENTER | wxALL, 5);
+
+	YResolutionInput = new wxTextCtrl(this, ID_YRESOLUTIONINPUT, _("Y"), wxPoint(50, 5), wxSize(35, 19), 0, wxDefaultValidator, _("YResolutionInput"));
+	WxBoxSizer7->Add(YResolutionInput, 0, wxALIGN_CENTER | wxALL, 5);
 
 	WxBoxSizer3 = new wxBoxSizer(wxVERTICAL);
 	WxBoxSizer2->Add(WxBoxSizer3, 0, wxALIGN_CENTER | wxALL, 5);
@@ -128,10 +149,23 @@ void Anaglyphs::CreateGUIControls()
 	WxSB_TransZ->Enable(false);
 	WxBoxSizer9->Add(WxSB_TransZ, 0, wxALIGN_CENTER | wxALL, 5);
 
-	WxST_TransZ = new wxStaticText(this, ID_WXST_SCALEX, _("1.0  "), wxPoint(62, 62), wxDefaultSize, 0, _("WxST_TransZ"));
+	WxST_TransZ = new wxStaticText(this, ID_WXST_CALIBRATE, _("1.0  "), wxPoint(62, 62), wxDefaultSize, 0, _("WxST_TransZ"));
 	WxBoxSizer9->Add(WxST_TransZ, 0, wxALIGN_CENTER | wxALL, 5);
 
 	WxOpenFileDialog = new wxFileDialog(this, _("Choose a file"), _(""), _(""), _("*.*"), wxFD_OPEN);
+
+	WxBoxSizer8 = new wxBoxSizer(wxVERTICAL);
+	WxBoxSizer2->Add(WxBoxSizer8, 0, wxALIGN_CENTER | wxALL, 5);
+
+	Kalib = new wxStaticText(this, ID_WXSTATICTEXT7, _("Kalibracja:"), wxPoint(45, 5), wxDefaultSize, 0, _("Kalib"));
+	WxBoxSizer8->Add(Kalib, 0, wxALIGN_CENTER | wxALL, 5);
+
+	Calibration = new wxScrollBar(this, ID_WXSB_CALIBRATE, wxPoint(5, 34), wxSize(139, 18), wxSB_HORIZONTAL, wxDefaultValidator, _("Calibration"));
+	Calibration->Enable(false);
+	WxBoxSizer8->Add(Calibration, 0, wxALIGN_CENTER | wxALL, 5);
+
+	Calibration_label = new wxStaticText(this, ID_WXST_TRANSZ, _("1.0  "), wxPoint(46, 79), wxDefaultSize, 0, _("Calibration_label"));
+	WxBoxSizer8->Add(Calibration_label, 0, wxALIGN_CENTER | wxALL, 5);
 
 	SetTitle(_("Projekt 3: Anaglify"));
 	SetIcon(wxNullIcon);
@@ -153,6 +187,8 @@ void Anaglyphs::CreateGUIControls()
 
 	WxSB_TransZ->SetScrollbar(50, 1, 101, 1, true);
 	WxSB_TransZ->Enable(true);
+	Calibration->SetScrollbar(0, 1, 255, 1, true);
+	Calibration->Enable(true);
 }
 
 void Anaglyphs::OnClose(wxCloseEvent& /*event*/)
@@ -168,8 +204,6 @@ void Anaglyphs::WxButtonLoadClick(wxCommandEvent& event)
 {
 	if (WxOpenFileDialog->ShowModal() == wxID_OK)
 	{
-		//double x1, y1, z1, x2, y2, z2;
-		//int size;
   
 		std::string line;
 		std::ifstream in(WxOpenFileDialog->GetPath().ToAscii());
@@ -206,8 +240,43 @@ void Anaglyphs::WxButtonLoadClick(wxCommandEvent& event)
 	}
 }
 
+void Anaglyphs::WxButtonSaveClick(wxCommandEvent& event)
+{
+	int x, y;
+	try {
+		if (XResolutionInput->GetLineLength(0) > 0)
+			x = std::stoi(XResolutionInput->GetLineText(0).ToStdString());
+		else
+			x = 800;
+		if (YResolutionInput->GetLineLength(0) > 0)
+			y = std::stoi(YResolutionInput->GetLineText(0).ToStdString());
+		else
+			y = 600;
+	}
+	catch (...) {
+		x = 800;
+		y = 600;
+	}
+	wxImage img = bit.ConvertToImage();
+	wxFileDialog
+		saveFileDialog(this, _("Save file"), "", "",
+			"JPG files (*.jpg)|*.jpg", wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+	if (saveFileDialog.ShowModal() == wxID_CANCEL)
+		return;
+
+	wxFileOutputStream output_stream(saveFileDialog.GetPath());
+	if (!output_stream.IsOk())
+	{
+		wxLogError("Nie mo¿na zapisaæ obrazu w '%s'.", saveFileDialog.GetPath());
+		return;
+	}
+	img.Rescale(x, y);
+	img.SaveFile(output_stream, "image/jpeg");
+}
+
 void Anaglyphs::Repaint()
 {
+	bit = wxBitmap(WxPanel->GetSize().GetWidth(), WxPanel->GetSize().GetHeight()); 
 	wxClientDC dc1(WxPanel);
 	wxBufferedDC dc(&dc1);
 	dc.SetBrush(*wxTRANSPARENT_BRUSH);
@@ -280,7 +349,7 @@ void Anaglyphs::Repaint()
 	final_matrix = translate_matrix * rotate_matrix;
 	for (unsigned i = 0; i < x_start.size(); i++)
 	{
-		pen.SetColour(0, 0, 255);
+		pen.SetColour(0, G, 255);
 		pen.SetWidth(edge_width[i]);
 		dc.SetPen(pen);
 
@@ -295,6 +364,8 @@ void Anaglyphs::Repaint()
 
 		dc.DrawLine(start_vector1.GetX(), start_vector1.GetY(), end_vector1.GetX(), end_vector1.GetY());
 	}
+	dcs.SelectObject(bit);
+	dcs.Blit(wxCoord(0), wxCoord(0), wxCoord(WxPanel->GetSize().GetWidth()), wxCoord(WxPanel->GetSize().GetHeight()), &dc, wxCoord(0), wxCoord(0));
 }
 
 /*
@@ -302,7 +373,7 @@ void Anaglyphs::Repaint()
  */
 void Anaglyphs::WxPanelUpdateUI(wxUpdateUIEvent& event)
 {
- Repaint();
+	Repaint();
 }
 
 
@@ -311,10 +382,10 @@ void Anaglyphs::WxPanelUpdateUI(wxUpdateUIEvent& event)
  */
 void Anaglyphs::WxSB_RotateXScroll(wxScrollEvent& event)
 {
- wxString str;
- str << (WxSB_RotateX->GetThumbPosition());
- WxST_RotateX->SetLabel(str);
- Repaint();
+	wxString str;
+	str << (WxSB_RotateX->GetThumbPosition());
+	WxST_RotateX->SetLabel(str);
+	Repaint();
 }
 
 /*
@@ -322,10 +393,10 @@ void Anaglyphs::WxSB_RotateXScroll(wxScrollEvent& event)
  */
 void Anaglyphs::WxSB_RotateYScroll(wxScrollEvent& event)
 {
- wxString str;
- str << (WxSB_RotateY->GetThumbPosition());
- WxST_RotateY->SetLabel(str);
- Repaint();
+	wxString str;
+	str << (WxSB_RotateY->GetThumbPosition());
+	WxST_RotateY->SetLabel(str);
+	Repaint();
 }
 
 /*
@@ -333,10 +404,10 @@ void Anaglyphs::WxSB_RotateYScroll(wxScrollEvent& event)
  */
 void Anaglyphs::WxSB_RotateZScroll(wxScrollEvent& event)
 {
- wxString str;
- str << (WxSB_RotateZ->GetThumbPosition());
- WxST_RotateZ->SetLabel(str);
- Repaint();
+	wxString str;
+	str << (WxSB_RotateZ->GetThumbPosition());
+	WxST_RotateZ->SetLabel(str);
+	Repaint();
 }
 
 /*
@@ -348,6 +419,14 @@ void Anaglyphs::WxSB_TransZScroll(wxScrollEvent& event)
 	str << (WxSB_TransZ->GetThumbPosition() - 50) / 30.0;
 	WxST_TransZ->SetLabel(str);
 	Repaint();	
+}
+
+void Anaglyphs::WxSB_Calibrate(wxScrollEvent& event) {
+	wxString str;
+	str << (Calibration->GetThumbPosition());
+	Calibration_label->SetLabel(str);
+	G = std::stoi(str.ToStdString());
+	Repaint();
 }
 
 
