@@ -1,13 +1,14 @@
 #include <cmath>
 #include "Sphere.h"
+#include <fstream>
 
-float DEGS_TO_RAD = 3.14159f / 180.0f;
+double DEGS_TO_RAD = 3.14159f / 180.0f;
 
 Sphere::Sphere(const Sphere& s) : center(s.center.x, s.center.y, s.center.z)
 {
 	this->radius = s.radius;
-	this->lat = s.lat;
-	this->lon = s.lon;
+	this->lat = 16;
+	this->lon = 8;
 	this->line_start = s.line_start;
 	this->line_end = s.line_end;
 }
@@ -15,29 +16,27 @@ Sphere::Sphere(const Sphere& s) : center(s.center.x, s.center.y, s.center.z)
 void Sphere::calculateWireframe()
 {
 	int p, s;
-	float x, y, z, out;
+	double x, y, z, out;
 	int nPitch = lon + 1;
 
-	float pitchInc = (180.0f / (float)nPitch) * DEGS_TO_RAD;
-	float rotInc = (360.0f / (float)lat) * DEGS_TO_RAD;
+	double pitchInc = (180.0f / (double)nPitch) * DEGS_TO_RAD;
+	double rotInc = (360.0f / (double)lat) * DEGS_TO_RAD;
+	double y_old = center.y + radius;
 
-	//## PRINT VERTICES:
-	float y_old = center.y + radius;
-	// Bottom vertex.
+	double *x_old_points = new double[lat];
+	double *z_old_points = new double[lat];
 
-	float *x_old_points = new float[lat];
-	float *z_old_points = new float[lat];
+	double *x_new_points = new double[lat];
+	double *z_new_points = new double[lat];
 
-	float *x_new_points = new float[lat];
-	float *z_new_points = new float[lat];
-
-	for (p = 1; p < nPitch; p++)     // Generate all "intermediate vertices":
+	for (p = 1; p < nPitch; p++)
 	{
-		out = radius * sin((float)p * pitchInc);
-		if (out < 0) out = -out;    // abs() command won't work with all compilers
+		out = radius * sin((double)p * pitchInc);
+		if (out < 0) 
+			out = -out;
 		y = radius * cos(p * pitchInc);
 		bool f = false;
-		float x_old = 0, z_old = 0;
+		double x_old = 0, z_old = 0;
 
 		for (s = 0; s < lat + 1; s++)
 		{
@@ -87,10 +86,5 @@ void Sphere::calculateWireframe()
 	for (int i = 0; i < lat; i++) {
 		line_start.push_back(Point((x_old_points[i] + center.x), (y + center.y), (z_old_points[i] + center.z)));
 		line_end.push_back(Point((x_new_points[i] + center.x), (y_old), (z_new_points[i] + center.z)));
-
 	}
-	delete[] x_new_points;
-	delete[] x_old_points;
-	delete[] z_new_points;
-	delete[] z_old_points;
 }
