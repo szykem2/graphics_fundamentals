@@ -19,12 +19,10 @@ class Sphere
 {
 	Point center;
 	double radius;
-	int lat;
-	int lon;
 	std::vector<Point> line_start;
 	std::vector<Point> line_end;
 public:
-	Sphere(Point c, double rad) : center(c), radius(rad), lat(16), lon(8) { calculateWireframe(); }
+	Sphere(Point c, double rad) : center(c), radius(rad) { calculateWireframe(); }
 	Sphere(const Sphere& s);
 	void calculateWireframe();
 	std::vector<Point>& getStartPoints() { return line_start; }

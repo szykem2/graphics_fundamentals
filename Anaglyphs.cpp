@@ -11,7 +11,7 @@
 #include <cmath>
 #include <wx/dcbuffer.h>
 #include <wx/wfstream.h>
-std::vector <double> x_start, x_end, y_start, y_end, z_start, z_end;
+std::vector <Point> start, end;
 std::vector <int> edge_width;
 std::vector <Sphere> spheres;
 double d = -2.0;
@@ -168,8 +168,6 @@ void Anaglyphs::CreateGUIControls()
 	WxBoxSizer8->Add(Calibration_label, 0, wxALIGN_CENTER | wxALL, 5);
 
 	WxOpenFileDialog =  new wxFileDialog(this, _("Choose a file"), _(""), _(""), _("*.*"), wxFD_OPEN);
-
-	SetTitle(_("Projekt 3: Anaglify"));
 	SetIcon(wxNullIcon);
 	
 	Layout();
@@ -193,15 +191,11 @@ void Anaglyphs::CreateGUIControls()
 	Calibration->Enable(true);
 }
 
-void Anaglyphs::OnClose(wxCloseEvent& /*event*/)
+void Anaglyphs::OnClose(wxCloseEvent& event)
 {
 	Destroy();
 }
 
-
-/*
- * WxButtonLoadClick
- */
 void Anaglyphs::WxButtonLoadClick(wxCommandEvent& event)
 {
 	if (WxOpenFileDialog->ShowModal() == wxID_OK)
@@ -212,16 +206,11 @@ void Anaglyphs::WxButtonLoadClick(wxCommandEvent& event)
 		{
             int size;
             in >> size;
-			x_start.clear();
-			y_start.clear();
-			z_start.clear();
-
-			x_end.clear();
-			y_end.clear();
-			z_end.clear();
-
+			start.clear();
+            end.clear();
 			edge_width.clear();
 			spheres.clear();
+			
 			int it = 0;
 			while (std::getline(in, line) && it <= size)
 			{
@@ -229,31 +218,27 @@ void Anaglyphs::WxButtonLoadClick(wxCommandEvent& event)
 				
 				split(line, vec, ' ');
 				if (vec[0] == "1") {
+                    double x, x1, y, y1, z, z1;
                     std::istringstream iss(vec[1]);
-                    double val;
-                    iss >> val;
-					x_start.push_back(val);
+                    iss >> x;
 					
 					std::istringstream iss1(vec[4]);
-                    iss1 >> val;
-					x_end.push_back(val);
+                    iss1 >> x1;
 
                     std::istringstream iss2(vec[2]);
-                    iss2 >> val;
-					y_start.push_back(val);
+                    iss2 >> y;
 					
 					std::istringstream iss3(vec[5]);
-                    iss3 >> val;
-					y_end.push_back(val);
+                    iss3 >> y1;
 
                     std::istringstream iss4(vec[3]);
-                    iss4 >> val;
-					z_start.push_back(val);
+                    iss4 >> z;
 					
 					std::istringstream iss5(vec[6]);
-                    iss5 >> val;
-					z_end.push_back(val);
-					
+                    iss5 >> z1;
+
+					start.push_back(Point(x, y, z));
+					end.push_back(Point(x1, y1, z1));
                     edge_width.push_back(atoi(vec[7].c_str()));
 				}
 				if (vec[0] == "2") {
@@ -369,37 +354,37 @@ void Anaglyphs::Repaint()
 
     pen.SetColour(255, 0, 0);
 
-	for (unsigned i = 0; i < x_start.size(); i++)
+	for (unsigned i = 0; i < start.size(); i++)
 	{
         pen.SetWidth(edge_width[i]);
 	    dc.SetPen(pen);
-		start_vector.Set(x_start[i], y_start[i], z_start[i]);
-		end_vector.Set(x_end[i], y_end[i], z_end[i]);
+		start_vector.Set(start[i].x, start[i].y, start[i].z);
+		end_vector.Set(end[i].x, end[i].y, end[i].z);
 		start_vector = final_matrix * start_vector;
 		end_vector = final_matrix * end_vector;
 
-		start_vector.Set((start_vector.GetX() / (-1 + start_vector.GetZ() / d)) * w / 2 + w / 2, (start_vector.GetY() / (-1 + start_vector.GetZ() / d)) * h / 2 + h / 2, z_end[i]);
-		end_vector.Set((end_vector.GetX() / (-1 + end_vector.GetZ() / d)) * w / 2 + w / 2, (end_vector.GetY() / (-1 + end_vector.GetZ() / d)) * h / 2 + h / 2, z_end[i]);
+		start_vector.Set((start_vector.GetX() / (-1 + start_vector.GetZ() / d)) * w / 2 + w / 2, (start_vector.GetY() / (-1 + start_vector.GetZ() / d)) * h / 2 + h / 2, end[i].z);
+		end_vector.Set((end_vector.GetX() / (-1 + end_vector.GetZ() / d)) * w / 2 + w / 2, (end_vector.GetY() / (-1 + end_vector.GetZ() / d)) * h / 2 + h / 2, end[i].z);
 
 		dc.DrawLine(start_vector.GetX(), start_vector.GetY(), end_vector.GetX(), end_vector.GetY());
 	}
 
 	translate_matrix.data[0][3] += 0.01;
 	final_matrix = translate_matrix * rotate_matrix;
-	for (unsigned i = 0; i < x_start.size(); i++)
+	for (unsigned i = 0; i < start.size(); i++)
 	{
 		pen.SetColour(0, G, 255);
 		pen.SetWidth(edge_width[i]);
 		dc.SetPen(pen);
 
-		start_vector1.Set(x_start[i], y_start[i], z_start[i]);
-		end_vector1.Set(x_end[i], y_end[i], z_end[i]);
+		start_vector1.Set(start[i].x, start[i].y, start[i].z);
+		end_vector1.Set(end[i].x, end[i].y, end[i].z);
 
 		start_vector1 = final_matrix * start_vector1;
 		end_vector1 = final_matrix * end_vector1;
 
-		start_vector1.Set((start_vector1.GetX() / (-1 + start_vector1.GetZ() / d)) * w / 2 + w / 2, (start_vector1.GetY() / (-1 + start_vector1.GetZ() / d)) * h / 2 + h / 2, z_end[i]);
-		end_vector1.Set((end_vector1.GetX() / (-1 + end_vector1.GetZ() / d)) * w / 2 + w / 2, (end_vector1.GetY() / (-1 + end_vector1.GetZ() / d)) * h / 2 + h / 2, z_end[i]);
+		start_vector1.Set((start_vector1.GetX() / (-1 + start_vector1.GetZ() / d)) * w / 2 + w / 2, (start_vector1.GetY() / (-1 + start_vector1.GetZ() / d)) * h / 2 + h / 2, end[i].z);
+		end_vector1.Set((end_vector1.GetX() / (-1 + end_vector1.GetZ() / d)) * w / 2 + w / 2, (end_vector1.GetY() / (-1 + end_vector1.GetZ() / d)) * h / 2 + h / 2, end[i].z);
 
 		dc.DrawLine(start_vector1.GetX(), start_vector1.GetY(), end_vector1.GetX(), end_vector1.GetY());
 	}
@@ -453,18 +438,11 @@ void Anaglyphs::Repaint()
 	dcs.Blit(wxCoord(0), wxCoord(0), wxCoord(WxPanel->GetSize().GetWidth()), wxCoord(WxPanel->GetSize().GetHeight()), &dc, wxCoord(0), wxCoord(0));
 }
 
-/*
- * WxPanelUpdateUI
- */
 void Anaglyphs::WxPanelUpdateUI(wxUpdateUIEvent& event)
 {
 	Repaint();
 }
 
-
-/*
- * WxSB_RotateXScroll
- */
 void Anaglyphs::WxSB_RotateXScroll(wxScrollEvent& event)
 {
 	wxString str;
@@ -473,9 +451,6 @@ void Anaglyphs::WxSB_RotateXScroll(wxScrollEvent& event)
 	Repaint();
 }
 
-/*
- * WxSB_RotateYScroll
- */
 void Anaglyphs::WxSB_RotateYScroll(wxScrollEvent& event)
 {
 	wxString str;
@@ -518,14 +493,11 @@ void split(const std::string &txt, std::vector<std::string> &strs, char ch)
 	unsigned int initialPos = 0;
 	strs.clear();
 
-	// Decompose statement
 	while (pos != std::string::npos) {
 		strs.push_back(txt.substr(initialPos, pos - initialPos));
 		initialPos = pos + 1;
 
 		pos = txt.find(ch, initialPos);
 	}
-
-	// Add the last one
 	strs.push_back(txt.substr(initialPos, std::min(pos, txt.size()) - initialPos));
 }
