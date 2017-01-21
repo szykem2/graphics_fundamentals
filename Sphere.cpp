@@ -22,11 +22,11 @@ void Sphere::calculateWireframe()
 	double rotInc = (360.0f / (double)lat) * DEGS_TO_RAD;
 	double y_old = center.y + radius;
 
-	double *x_old_points = new double[lat];
-	double *z_old_points = new double[lat];
+	double x_old_points[17] = {0};
+	double z_old_points[17] = {0};
 
-	double *x_new_points = new double[lat];
-	double *z_new_points = new double[lat];
+	double x_new_points[17] = {0};
+	double z_new_points[17] = {0};
 
 	for (p = 1; p < n; p++)
 	{
