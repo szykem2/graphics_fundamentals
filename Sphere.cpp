@@ -2,7 +2,7 @@
 #include "Sphere.h"
 #include <fstream>
 
-double DEGS_TO_RAD = M_PI / 180.0;
+double DEGS_TO_RAD = 3.14159f / 180.0f;
 
 Sphere::Sphere(const Sphere& s) : center(s.center.x, s.center.y, s.center.z)
 {
@@ -16,24 +16,24 @@ void Sphere::calculateWireframe()
 	int p, s;
 	double x, y, z, out;
 	int n = 9;
-	const int lat = 16;
-
-	double inc = (180.0 / (double)n) * DEGS_TO_RAD;
-	double rotInc = (360.0 / (double)lat) * DEGS_TO_RAD;
+    int lat = 16;
+    
+	double pitchInc = (180.0f / (double)n) * DEGS_TO_RAD;
+	double rotInc = (360.0f / (double)lat) * DEGS_TO_RAD;
 	double y_old = center.y + radius;
 
-	double x_old_points[16];
-	double z_old_points[16];
+	double *x_old_points = new double[lat];
+	double *z_old_points = new double[lat];
 
-	double x_new_points[16];
-	double z_new_points[16];
+	double *x_new_points = new double[lat];
+	double *z_new_points = new double[lat];
 
 	for (p = 1; p < n; p++)
 	{
-		out = radius * sin((double)p * inc);
+		out = radius * sin((double)p * pitchInc);
 		if (out < 0) 
 			out = -out;
-		y = radius * cos(p * inc);
+		y = radius * cos(p * pitchInc);
 		bool f = false;
 		double x_old = 0, z_old = 0;
 

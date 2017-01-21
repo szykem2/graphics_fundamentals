@@ -18,8 +18,8 @@ LeftChar=1
 [Editor_2]
 Open=1
 Top=0
-CursorCol=100
-CursorRow=170
+CursorCol=16
+CursorRow=19
 TopLine=1
 LeftChar=1
 [Editor_3]
@@ -60,8 +60,8 @@ TopLine=1
 LeftChar=1
 [Editor_6]
 CursorCol=2
-CursorRow=12
-TopLine=1
+CursorRow=89
+TopLine=52
 LeftChar=1
 [Editor_8]
 CursorCol=1

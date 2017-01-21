@@ -17,7 +17,7 @@ std::vector <Sphere> spheres;
 double d = -2.0;
 int G = 0;
 wxMemoryDC dcs;
-wxBitmap bit(1024, 768);
+wxBitmap bit(3840, 2160);
 
 //Do not add custom headers
 //wxDev-C++ designer will remove them
@@ -435,7 +435,7 @@ void Anaglyphs::Repaint()
 
 
 	dcs.SelectObject(bit);
-	dcs.Blit(wxCoord(0), wxCoord(0), wxCoord(WxPanel->GetSize().GetWidth()), wxCoord(WxPanel->GetSize().GetHeight()), &dc, wxCoord(0), wxCoord(0));
+	dcs.Blit(wxCoord(0), wxCoord(0), wxCoord(bit.GetSize().GetWidth()), wxCoord(bit.GetSize().GetHeight()), &dc, wxCoord(0), wxCoord(0));
 }
 
 void Anaglyphs::WxPanelUpdateUI(wxUpdateUIEvent& event)

@@ -38,12 +38,10 @@ class Anaglyphs : public wxDialog
 		DECLARE_EVENT_TABLE();
 		
 	public:
-		Anaglyphs(wxWindow *parent, wxWindowID id = 1, const wxString &title = wxT("Lab05"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = Anaglyphs_STYLE);
+		Anaglyphs(wxWindow *parent, wxWindowID id = 1, const wxString &title = wxT("Projekt 3: Anaglify"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = Anaglyphs_STYLE);
 		virtual ~Anaglyphs();
-		void WxButton1Click(wxCommandEvent& event);
 		void WxButtonLoadClick(wxCommandEvent& event);
 		void WxButtonSaveClick(wxCommandEvent& event);
-		void AnaglyphsPaint(wxPaintEvent& event);
 		void Repaint();
 		void WxPanelUpdateUI(wxUpdateUIEvent& event);
 		void WxSB_RotateXScroll(wxScrollEvent& event);
